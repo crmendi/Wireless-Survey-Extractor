@@ -16,16 +16,44 @@ import numpy as np
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from datetime import datetime
+import sys
+import ctypes
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 class EkahauAPCounter:
     def __init__(self, root):
         self.root = root
-        self.root.title("Ekahau AP Counter Pro")
+        self.root.title("Ekahau Tools")
         self.root.geometry("1100x750")
+        self.root.state('zoomed')
+        try:
+            # Set App User Model ID for taskbar icon on Windows
+            myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        except Exception as e:
+            print(f"Error setting AppUserModelID: {e}")
+
+        try:
+            ico_path = resource_path('icon.ico')
+            png_path = resource_path('icon.png')
+            if os.path.exists(ico_path):
+                self.root.iconbitmap(ico_path)
+            if os.path.exists(png_path):
+                img = tk.PhotoImage(file=png_path)
+                self.root.tk.call('wm', 'iconphoto', self.root._w, img)
+        except Exception as e:
+            print(f"Error setting icon: {e}")
         self.style = ttk.Style()
         self.setup_styles()
         self.create_icons()
-        self.center_window()
 
         # Configuración inicial
         self.circle_radius = 10
@@ -48,9 +76,153 @@ class EkahauAPCounter:
         self.note_counts = {}
         self.selected_files = []
         self.floor_order = []
-
+        self.report_image_path = "Heimcore.png"
+ 
+        self.create_menu()
         self.create_widgets()
         self.setup_bindings()
+
+    def create_menu(self):
+        self.menubar = tk.Menu(self.root)
+        self.root.config(menu=self.menubar)
+
+        # File Menu
+        file_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Archivo", menu=file_menu)
+        file_menu.add_command(label="Seleccionar Archivos ESX...", command=self.load_esx, accelerator="Ctrl+O")
+        file_menu.add_command(label="Cargar Proyecto...", command=self.load_project)
+        file_menu.add_command(label="Guardar Proyecto...", command=self.save_project, accelerator="Ctrl+S")
+        file_menu.add_separator()
+        file_menu.add_command(label="Salir", command=self.root.quit)
+
+        # Export Menu
+        export_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Exportar", menu=export_menu)
+        export_menu.add_command(label="Exportar Datos a CSV...", command=self.export_csv)
+        export_menu.add_command(label="Exportar Imágenes con APs...", command=self.export_images_with_aps)
+        export_menu.add_command(label="Generar Informe Word...", command=self.generate_word_report)
+
+        # Tools Menu
+        tools_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Herramientas", menu=tools_menu)
+        tools_menu.add_command(label="Configuración...", command=self.show_settings_dialog)
+        tools_menu.add_command(label="Importar Imagen para Informe...", command=self.import_report_image)
+
+        # Help Menu
+        help_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Ayuda", menu=help_menu)
+        help_menu.add_command(label="Tutorial...", command=self.show_tutorial_dialog)
+        help_menu.add_command(label="Acerca de...", command=self.show_about_dialog)
+
+    def show_tutorial_dialog(self):
+        tutorial_win = tk.Toplevel(self.root)
+        tutorial_win.title("Tutorial - Ekahau Tools")
+        tutorial_win.geometry("800x650")
+        tutorial_win.transient(self.root)
+        tutorial_win.grab_set()
+
+        main_frame = ttk.Frame(tutorial_win, padding=15)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        text_frame = ttk.Frame(main_frame)
+        text_frame.pack(fill=tk.BOTH, expand=True)
+
+        text_widget = tk.Text(text_frame, wrap=tk.WORD, font=("Segoe UI", 10), relief=tk.FLAT, padx=10, pady=10)
+        scrollbar = ttk.Scrollbar(text_frame, orient="vertical", command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
+
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Define tag for bold text
+        bold_font = ("Segoe UI", 10, "bold")
+        text_widget.tag_configure("bold", font=bold_font)
+
+        tutorial_text = """
+**Bienvenido al Tutorial de Ekahau Tools**
+
+Esta guía te mostrará cómo utilizar todas las funcionalidades de la aplicación.
+
+**1. Cargar Archivos**
+
+-   **Seleccionar Archivos ESX... (Ctrl+O):** Ve a `Archivo > Seleccionar Archivos ESX...` para abrir uno o varios archivos de proyecto de Ekahau (`.esx`). Los datos de los puntos de acceso (APs) se cargarán y mostrarán en la tabla principal.
+-   **Cargar Proyecto...:** Utiliza `Archivo > Cargar Proyecto...` para abrir un archivo de proyecto de Ekahau Tools (`.aproj`) que hayas guardado previamente. Esto restaurará los archivos `.esx` seleccionados, la configuración de visualización y los filtros.
+
+**2. Guardar un Proyecto**
+
+-   **Guardar Proyecto... (Ctrl+S):** Ve a `Archivo > Guardar Proyecto...` para guardar tu sesión actual. Esto te permitirá retomar tu trabajo más tarde sin tener que volver a cargar los archivos y configurar todo de nuevo.
+
+**3. Filtrar Datos**
+
+-   Una vez cargados los datos, puedes usar los menús desplegables en la parte superior de la tabla para filtrar los resultados por `Archivo`, `Modelo de AP` o `Piso`.
+
+**4. Exportar Resultados**
+
+El menú `Exportar` contiene todas las opciones para generar informes:
+
+-   **Exportar Datos a CSV...:** Crea un archivo `.csv` con la tabla completa de datos de APs, ideal para análisis en hojas de cálculo.
+-   **Exportar Imágenes con APs...:** Genera imágenes de los planos de cada piso, mostrando la ubicación de los APs con círculos y etiquetas. Podrás personalizar la apariencia de estos elementos en la configuración.
+-   **Generar Informe Word...:** Crea un documento de Word (`.docx`) completo que incluye:
+    -   Una portada con el logo, nombre del cliente e ingeniero.
+    -   Imágenes de cada plano con los APs y notas.
+    -   Tablas de resumen por piso.
+    -   Un resumen general del proyecto.
+    -   Gráficos con estadísticas de los APs y notas.
+
+**5. Configuración y Personalización**
+
+-   **Configuración...:** Ve a `Herramientas > Configuración...` para abrir la ventana de ajustes. Aquí puedes cambiar los colores, tamaños de fuente y radios de los círculos que se usan al generar las imágenes de los planos.
+-   **Importar Imagen para Informe...:** En `Herramientas > Importar Imagen para Informe...`, puedes seleccionar una imagen personalizada (por ejemplo, el logo de un cliente) que se usará en la portada de los informes de Word.
+
+**6. Ayuda**
+
+-   **Acerca de...:** Muestra información sobre la aplicación.
+"""
+        # Process and insert text with bold tags
+        for line in tutorial_text.strip().split('\n'):
+            parts = re.split(r'(\*\*.*?\*\*)', line)
+            for part in parts:
+                if part.startswith('**') and part.endswith('**'):
+                    text_widget.insert(tk.END, part[2:-2], "bold")
+                else:
+                    text_widget.insert(tk.END, part)
+            text_widget.insert(tk.END, '\n')
+
+        text_widget.config(state=tk.DISABLED) # Make text read-only
+
+        btn_frame = ttk.Frame(main_frame)
+        btn_frame.pack(pady=(10, 0))
+        ttk.Button(btn_frame, text="Cerrar", command=tutorial_win.destroy).pack()
+
+    def import_report_image(self):
+        path = filedialog.askopenfilename(
+            title="Seleccionar imagen para el informe",
+            filetypes=(("PNG files", "*.png"), ("JPEG files", "*.jpg;*.jpeg"), ("Todos los archivos", "*.*"))
+        )
+        if path:
+            self.report_image_path = path
+            messagebox.showinfo("Éxito", f"Imagen '{os.path.basename(path)}' seleccionada para los informes.")
+
+    def show_about_dialog(self):
+        license_text = """
+Ekahau Tools - Versión 1.0
+Creado por: Christian Mendivelso
+
+----------------------------------
+Licencia de Software Propietario
+----------------------------------
+
+Copyright (c) 2025, Christian Mendivelso. Todos los derechos reservados.
+
+Este software se proporciona de forma gratuita para uso personal y no comercial.
+
+Queda estrictamente prohibida la redistribución, modificación, descompilación, ingeniería inversa o uso del código fuente (en su totalidad o en parte) para crear otros productos de software, ya sean comerciales o gratuitos, sin el permiso explícito y por escrito del autor.
+
+La venta o cualquier otra forma de explotación comercial de este software está prohibida sin una licencia comercial obtenida directamente del autor.
+
+ESTE SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO.
+"""
+        messagebox.showinfo("Acerca de Ekahau Tools", license_text)
 
     def setup_styles(self):
         self.style.theme_use('clam')
@@ -62,6 +234,8 @@ class EkahauAPCounter:
                      foreground=[('!disabled', '#2C3E50')])
         self.style.configure('Header.TLabel', font=('Segoe UI', 14, 'bold'),
                            foreground='#2C3E50', background='#ECF0F1')
+        self.style.configure('Warning.TLabel', font=('Segoe UI', 11, 'bold'),
+                           foreground='red', background='#ECF0F1')
         self.style.configure('Treeview', font=('Segoe UI', 10), rowheight=28,
                            fieldbackground='#FFFFFF')
         self.style.configure('Treeview.Heading', font=('Segoe UI', 10, 'bold'),
@@ -114,24 +288,16 @@ class EkahauAPCounter:
 
         # Header
         header_frame = ttk.Frame(main_frame)
-        header_frame.pack(fill=tk.X, pady=(0, 20))
-        ttk.Label(header_frame, text="Ekahau AP Counter Pro", style='Header.TLabel').pack(side=tk.LEFT)
-        
-        # Toolbar
-        toolbar = ttk.Frame(main_frame)
-        toolbar.pack(fill=tk.X, pady=10)
-        
-        toolbar_buttons = [
-            ('Cargar Proyecto', 'load', self.load_project),
-            ('Guardar Proyecto', 'save', self.save_project),
-            ('Configuración', 'settings', self.show_settings_dialog),
-            ('Exportar Datos', 'export', self.export_csv)
-        ]
-        
-        for text, icon, cmd in toolbar_buttons:
-            btn = ttk.Button(toolbar, text=text, image=self.icons[icon],
-                           compound=tk.LEFT, command=cmd)
-            btn.pack(side=tk.LEFT, padx=5)
+        header_frame.pack(fill=tk.X, pady=(0, 10))
+        ttk.Label(header_frame, text="Ekahau Tools", style='Header.TLabel').pack(side=tk.LEFT)
+
+        # Warning Message
+        warning_label = ttk.Label(
+            main_frame,
+            text="¡Atención! Asegúrese de que los archivos .esx contengan únicamente APs simulados.",
+            style="Warning.TLabel"
+        )
+        warning_label.pack(fill=tk.X, pady=(0, 10))
 
         # Panel principal
         content_frame = ttk.Frame(main_frame)
@@ -182,20 +348,9 @@ class EkahauAPCounter:
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
-        # Barra inferior
-        bottom_frame = ttk.Frame(main_frame)
-        bottom_frame.pack(fill=tk.X, pady=10)
-        
-        action_buttons = [
-            ('Generar Informe Word', 'report', self.generate_word_report),
-            ('Exportar Imágenes', 'export', self.export_images_with_aps),
-            ('Seleccionar ESX', 'open', self.load_esx)
-        ]
-        
-        for text, icon, cmd in action_buttons:
-            btn = ttk.Button(bottom_frame, text=text, image=self.icons[icon],
-                           compound=tk.LEFT, command=cmd)
-            btn.pack(side=tk.LEFT, padx=5)
+        # Status Bar
+        self.status_bar = ttk.Label(main_frame, text="2025 - Christian Mendivelso", anchor=tk.W)
+        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.selected_files_label = ttk.Label(main_frame, wraplength=1000)
         self.selected_files_label.pack(pady=10)
@@ -1093,8 +1248,8 @@ class EkahauAPCounter:
         
         try:
             # --- Cover Page ---
-            if os.path.exists("Heimcore.png"):
-                doc.add_picture("Heimcore.png", width=Inches(3.0))
+            if os.path.exists(self.report_image_path):
+                doc.add_picture(self.report_image_path, width=Inches(3.0))
             
             title = doc.add_paragraph()
             title.add_run('Informe de Cobertura Inalámbrica').bold = True
