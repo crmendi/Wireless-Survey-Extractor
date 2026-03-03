@@ -1,8 +1,8 @@
-# Wireless Survey Extractor - Desktop App
+﻿# Wireless Survey Extractor - Desktop App
 
 Una aplicación de escritorio rápida y nativa construida en Python (Tkinter) para un mejor manejo y análisis de los archivos de diseños inalámbricos `.esx` (generados por software de levantamiento como Ekahau).
 
-> **⚠️ AVISO LEGAL DE MARCA:** 
+> ** AVISO LEGAL DE MARCA:** 
 > "Ekahau" y "Ekahau Pro" son marcas comerciales registradas de Ekahau, Inc. 
 > Este proyecto **NO está afiliado, respaldado, soportado ni patrocinado por Ekahau.** Esta es una herramienta independiente y de código abierto desarrollada por terceros para habilitar flujos de trabajo personalizados y extracciones analíticas leyendo la estructura de archivos `.esx`.
 
@@ -10,7 +10,7 @@ Una aplicación de escritorio rápida y nativa construida en Python (Tkinter) pa
 
 ---
 
-## 🎯 ¿Qué hace esta herramienta?
+##  ¿Qué hace esta herramienta?
 
 Los archivos `.esx` son esencialmente contenedores ZIP complejos que guardan planos, coordenadas JSON, metadatos y modelos de Access Points (APs). Esta herramienta interactúa con esa estructura sin necesidad de abrir programas pesados ni contar con licencias activas para:
 1. **Contar y Cuantificar:** Listado tabular agrupado por modelo, archivos y pisos.
@@ -18,13 +18,25 @@ Los archivos `.esx` son esencialmente contenedores ZIP complejos que guardan pla
 3. **Generación de Reportes Dinámicos:** Exportación a un documento Word (DOCX) limpio con todos los planos demarcados, tablas de resúmenes totales y gráficos de barras analíticos.
 4. **Exportar a CSV y PDFs:** Exportación de tablas planas (CSV) o unión masiva de PDFs.
 
+### Interfaz Principal
+![Interfaz principal con tabla de datos, filtros por archivo, modelo y piso](docs/images/main_interface.png)
+
+### Vista Previa de Planos y Configuración de Informe
+![Vista previa del plano con APs marcados y opciones de reporte](docs/images/report_preview.png)
+
+### Reporte Word Generado
+![Ejemplo de reporte Word con plano demarcado y tabla resumen por piso](docs/images/word_report.png)
+
+### Gráfico Analítico
+![Gráfico de barras con total de modelos de AP por edificio](docs/images/analytics_chart.png)
+
 ---
 
-## 📖 Instrucciones de Uso (Paso a Paso)
+##  Instrucciones de Uso (Paso a Paso)
 
 ### 1. Requisitos Previos y Preparación
 - Asegúrate de tener tu archivo `.esx` finalizado.
-- **🚨 ADVERTENCIA CLAVE - SÓLO DISEÑOS PREDICTIVOS:** Esta herramienta lee las ubicaciones estáticas de los APs. Por lo tanto, tu archivo `.esx` debe contener **ÚNICAMENTE APs Simulados (Levantamientos Predictivos)**. Si tu archivo incluye "APs Detectados" capturados automáticamente en un barrido físico de *Site Survey Activo*, el algoritmo generará superposiciones, lecturas erráticas o simplemente no funcionará correctamente, ya que los APs detectados tienen otra estructura de datos en el JSON de base. 
+- ** ADVERTENCIA CLAVE - SÓLO DISEÑOS PREDICTIVOS:** Esta herramienta lee las ubicaciones estáticas de los APs. Por lo tanto, tu archivo `.esx` debe contener **ÚNICAMENTE APs Simulados (Levantamientos Predictivos)**. Si tu archivo incluye "APs Detectados" capturados automáticamente en un barrido físico de *Site Survey Activo*, el algoritmo generará superposiciones, lecturas erráticas o simplemente no funcionará correctamente, ya que los APs detectados tienen otra estructura de datos en el JSON de base. 
 
 ### 2. Carga de Archivos
 - Abre el programa. Encontrarás la interfaz principal dividida en Panel de Filtros y Tabla de Datos.
@@ -68,17 +80,17 @@ Si pasaste media hora perfeccionando el color exacto, el tamaño de la burbuja y
 
 ---
 
-## 🚀 Uso Directo en Windows (Recomendado)
+##  Uso Directo en Windows (Recomendado)
 
 Para usuarios que no son programadores y no desean lidiar con entornos virtuales de Python:
 
-1. Ve a la ruta `Desktop_App/dist/wireless_survey_extractor.exe`. 
+1. Descarga `wireless_survey_extractor.exe` desde este repositorio.
 2. Haz doble clic sobre él (no requiere la terminal de comandos de CMD, iniciará la interfaz visual de una vez).
 3. (Windows Defender podría mostrar una alerta de seguridad ("Pantalla Azul/SmartScreen") dado que es un ejecutable open-source sin firma digital comercial. Selecciona *"Más Información"* y luego *"Ejecutar de todas formas"*).
 
 ---
 
-## 💻 Para Desarrolladores
+##  Para Desarrolladores
 
 Si deseas compilar la app tú mismo, ver el código o hacer "fork".
 
@@ -89,10 +101,11 @@ Si deseas compilar la app tú mismo, ver el código o hacer "fork".
 ### Instalación en Entorno
 ```bash
 # Clona el repositorio y entra al mismo
-cd Desktop_App/
+git clone https://github.com/crmendi/Ekahau.git
+cd Ekahau/
 
 # Instala todas las dependencias vitales (PIL, Docx, Matplotlib, Numpy)
-pip install -r ../requirements.txt 
+pip install -r requirements.txt 
 ```
 
 ### Ejecutar Local
@@ -108,5 +121,5 @@ pyinstaller --onefile --windowed --add-data "icon.ico;." --add-data "icon.png;."
 
 ---
 
-## ⚖️ Licencia 
+##  Licencia 
 Este proyecto está bajo la Licencia **Apache 2.0**. Consulta el archivo `LICENSE` en la raíz del repositorio para más detalles legales. Se fomenta el uso libre, la modificación arquitectónica y el intercambio comercial o privado, **siempre y cuando se den creditos al autor (Christian Mendivelso)** o se incluyan enlaces a repeticiones de la licencia Apache en las distribuciones dadas.
