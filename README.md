@@ -24,7 +24,7 @@ Los archivos `.esx` son esencialmente contenedores ZIP complejos que guardan pla
 
 ### 1. Requisitos Previos y Preparación
 - Asegúrate de tener tu archivo `.esx` finalizado.
-- **🚨 ADVERTENCIA CLAVE:** La aplicación procesa elementos inalámbricos ubicados. Para resultados perfectos, asegúrate de que tus archivos `.esx` contengan únicamente los APs definitivos o simulados de tu diseño y notas de levantamiento útiles. Otros componentes erráticos pueden sesgar las estadísticas.
+- **🚨 ADVERTENCIA CLAVE - SÓLO DISEÑOS PREDICTIVOS:** Esta herramienta lee las ubicaciones estáticas de los APs. Por lo tanto, tu archivo `.esx` debe contener **ÚNICAMENTE APs Simulados (Levantamientos Predictivos)**. Si tu archivo incluye "APs Detectados" capturados automáticamente en un barrido físico de *Site Survey Activo*, el algoritmo generará superposiciones, lecturas erráticas o simplemente no funcionará correctamente, ya que los APs detectados tienen otra estructura de datos en el JSON de base. 
 
 ### 2. Carga de Archivos
 - Abre el programa. Encontrarás la interfaz principal dividida en Panel de Filtros y Tabla de Datos.
