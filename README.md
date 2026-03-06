@@ -2,6 +2,12 @@
 
 Una aplicación de escritorio rápida y nativa construida en Python (Tkinter) para un mejor manejo y análisis de los archivos de diseños inalámbricos `.esx` (generados por software de levantamiento como Ekahau).
 
+## Novedades Recientes
+
+- Soporte de interfaz bilingüe: **Español / English**.
+- Cambio de idioma desde el menú `Idioma` (`Language`).
+- Traducción aplicada a menús principales, tutorial, configuración y licencia.
+
 > ** AVISO LEGAL DE MARCA:** 
 > "Ekahau" y "Ekahau Pro" son marcas comerciales registradas de Ekahau, Inc. 
 > Este proyecto **NO está afiliado, respaldado, soportado ni patrocinado por Ekahau.** Esta es una herramienta independiente y de código abierto desarrollada por terceros para habilitar flujos de trabajo personalizados y extracciones analíticas leyendo la estructura de archivos `.esx`.
