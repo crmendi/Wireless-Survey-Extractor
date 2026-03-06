@@ -101,12 +101,16 @@ Si deseas compilar la app tú mismo, ver el código o hacer "fork".
 ### Instalación en Entorno
 ```bash
 # Clona el repositorio y entra al mismo
-git clone https://github.com/crmendi/Ekahau.git
-cd Ekahau/
+git clone https://github.com/crmendi/Wireless-Survey-Extractor.git
+cd Wireless-Survey-Extractor/
 
 # Instala todas las dependencias vitales (PIL, Docx, Matplotlib, Numpy)
 pip install -r requirements.txt 
 ```
+
+### Idioma de la interfaz
+- La app soporta cambio de idioma **Español/Inglés** desde `Idioma`.
+- El cambio aplica a menús principales, tutorial, ventana de configuración y diálogo de licencia.
 
 ### Ejecutar Local
 ```bash
