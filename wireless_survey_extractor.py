@@ -78,43 +78,174 @@ class WirelessSurveyExtractor:
         self.selected_files = []
         self.floor_order = []
         self.report_image_path = "Heimcore.png"
+        self.current_language = tk.StringVar(value="es")
+        self.translations = {
+            "es": {
+                "menu_file": "Archivo",
+                "menu_export": "Exportar",
+                "menu_tools": "Herramientas",
+                "menu_help": "Ayuda",
+                "menu_language": "Idioma",
+                "select_esx": "Seleccionar Archivos ESX...",
+                "load_project": "Cargar Proyecto...",
+                "save_project": "Guardar Proyecto...",
+                "exit": "Salir",
+                "export_csv": "Exportar Datos a CSV...",
+                "export_images": "Exportar Imágenes con APs...",
+                "generate_word": "Generar Informe Word...",
+                "merge_pdf": "Unir PDFs Existentes...",
+                "settings": "Configuración...",
+                "import_report_image": "Importar Imagen para Informe...",
+                "tutorial": "Tutorial...",
+                "about": "Acerca de...",
+                "header_warning": "¡ATENCIÓN! Asegúrese de que el archivo .esx contenga ÚNICAMENTE diseños de APs Simulados (Levantamiento Predictivo). Los APs detectados en Site Surveys activos generarán fallos técnicos y visuales.",
+                "file_filter": "Archivo:",
+                "model_filter": "Modelo AP:",
+                "floor_filter": "Piso:",
+                "all": "Todos",
+                "selected_files": "Archivos seleccionados: {files}",
+                "tree_file": "Archivo",
+                "tree_model": "Modelo",
+                "tree_floor": "Piso",
+                "tree_count": "Cantidad",
+                "dialog_close": "Cerrar",
+                "lang_es": "Español",
+                "lang_en": "Inglés"
+            },
+            "en": {
+                "menu_file": "File",
+                "menu_export": "Export",
+                "menu_tools": "Tools",
+                "menu_help": "Help",
+                "menu_language": "Language",
+                "select_esx": "Select ESX Files...",
+                "load_project": "Load Project...",
+                "save_project": "Save Project...",
+                "exit": "Exit",
+                "export_csv": "Export Data to CSV...",
+                "export_images": "Export Images with APs...",
+                "generate_word": "Generate Word Report...",
+                "merge_pdf": "Merge Existing PDFs...",
+                "settings": "Settings...",
+                "import_report_image": "Import Report Image...",
+                "tutorial": "Tutorial...",
+                "about": "About...",
+                "header_warning": "WARNING! Make sure the .esx file contains ONLY simulated AP designs (Predictive Survey). APs detected in active Site Surveys will generate technical and visual errors.",
+                "file_filter": "File:",
+                "model_filter": "AP Model:",
+                "floor_filter": "Floor:",
+                "all": "All",
+                "selected_files": "Selected files: {files}",
+                "tree_file": "File",
+                "tree_model": "Model",
+                "tree_floor": "Floor",
+                "tree_count": "Count",
+                "dialog_close": "Close",
+                "lang_es": "Spanish",
+                "lang_en": "English"
+            }
+        }
  
         self.create_menu()
         self.create_widgets()
         self.setup_bindings()
+        self.refresh_language()
+
+    def t(self, key, **kwargs):
+        lang = self.current_language.get()
+        text = self.translations.get(lang, {}).get(key, key)
+        return text.format(**kwargs) if kwargs else text
+
+    def all_option(self):
+        return self.t("all")
+
+    def is_all_option(self, value):
+        return value in [self.translations["es"]["all"], self.translations["en"]["all"]]
 
     def create_menu(self):
         self.menubar = tk.Menu(self.root)
         self.root.config(menu=self.menubar)
 
         # File Menu
-        file_menu = tk.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Archivo", menu=file_menu)
-        file_menu.add_command(label="Seleccionar Archivos ESX...", command=self.load_esx, accelerator="Ctrl+O")
-        file_menu.add_command(label="Cargar Proyecto...", command=self.load_project)
-        file_menu.add_command(label="Guardar Proyecto...", command=self.save_project, accelerator="Ctrl+S")
-        file_menu.add_separator()
-        file_menu.add_command(label="Salir", command=self.root.quit)
+        self.file_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label=self.t("menu_file"), menu=self.file_menu)
+        self.file_menu.add_command(label=self.t("select_esx"), command=self.load_esx, accelerator="Ctrl+O")
+        self.file_menu.add_command(label=self.t("load_project"), command=self.load_project)
+        self.file_menu.add_command(label=self.t("save_project"), command=self.save_project, accelerator="Ctrl+S")
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label=self.t("exit"), command=self.root.quit)
 
         # Export Menu
-        export_menu = tk.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Exportar", menu=export_menu)
-        export_menu.add_command(label="Exportar Datos a CSV...", command=self.export_csv)
-        export_menu.add_command(label="Exportar Imágenes con APs...", command=self.export_images_with_aps)
-        export_menu.add_command(label="Generar Informe Word...", command=self.generate_word_report)
-        export_menu.add_command(label="Unir PDFs Existentes...", command=self.merge_existing_pdfs)
+        self.export_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label=self.t("menu_export"), menu=self.export_menu)
+        self.export_menu.add_command(label=self.t("export_csv"), command=self.export_csv)
+        self.export_menu.add_command(label=self.t("export_images"), command=self.export_images_with_aps)
+        self.export_menu.add_command(label=self.t("generate_word"), command=self.generate_word_report)
+        self.export_menu.add_command(label=self.t("merge_pdf"), command=self.merge_existing_pdfs)
 
         # Tools Menu
-        tools_menu = tk.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Herramientas", menu=tools_menu)
-        tools_menu.add_command(label="Configuración...", command=self.show_settings_dialog)
-        tools_menu.add_command(label="Importar Imagen para Informe...", command=self.import_report_image)
+        self.tools_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label=self.t("menu_tools"), menu=self.tools_menu)
+        self.tools_menu.add_command(label=self.t("settings"), command=self.show_settings_dialog)
+        self.tools_menu.add_command(label=self.t("import_report_image"), command=self.import_report_image)
 
         # Help Menu
-        help_menu = tk.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Ayuda", menu=help_menu)
-        help_menu.add_command(label="Tutorial...", command=self.show_tutorial_dialog)
-        help_menu.add_command(label="Acerca de...", command=self.show_about_dialog)
+        self.help_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label=self.t("menu_help"), menu=self.help_menu)
+        self.help_menu.add_command(label=self.t("tutorial"), command=self.show_tutorial_dialog)
+        self.help_menu.add_command(label=self.t("about"), command=self.show_about_dialog)
+
+        # Language Menu
+        self.language_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label=self.t("menu_language"), menu=self.language_menu)
+        self.language_menu.add_radiobutton(label=self.t("lang_es"), variable=self.current_language, value="es", command=self.refresh_language)
+        self.language_menu.add_radiobutton(label=self.t("lang_en"), variable=self.current_language, value="en", command=self.refresh_language)
+
+
+    def refresh_language(self):
+        self.menubar.entryconfig(0, label=self.t("menu_file"))
+        self.menubar.entryconfig(1, label=self.t("menu_export"))
+        self.menubar.entryconfig(2, label=self.t("menu_tools"))
+        self.menubar.entryconfig(3, label=self.t("menu_help"))
+        self.menubar.entryconfig(4, label=self.t("menu_language"))
+
+        self.file_menu.entryconfig(0, label=self.t("select_esx"))
+        self.file_menu.entryconfig(1, label=self.t("load_project"))
+        self.file_menu.entryconfig(2, label=self.t("save_project"))
+        self.file_menu.entryconfig(4, label=self.t("exit"))
+
+        self.export_menu.entryconfig(0, label=self.t("export_csv"))
+        self.export_menu.entryconfig(1, label=self.t("export_images"))
+        self.export_menu.entryconfig(2, label=self.t("generate_word"))
+        self.export_menu.entryconfig(3, label=self.t("merge_pdf"))
+
+        self.tools_menu.entryconfig(0, label=self.t("settings"))
+        self.tools_menu.entryconfig(1, label=self.t("import_report_image"))
+
+        self.help_menu.entryconfig(0, label=self.t("tutorial"))
+        self.help_menu.entryconfig(1, label=self.t("about"))
+
+        self.language_menu.entryconfig(0, label=self.t("lang_es"))
+        self.language_menu.entryconfig(1, label=self.t("lang_en"))
+
+        if hasattr(self, "warning_label"):
+            self.warning_label.config(text=self.t("header_warning"))
+        if hasattr(self, "filter_labels"):
+            self.filter_labels['archivo'].config(text=self.t("file_filter"))
+            self.filter_labels['modelo'].config(text=self.t("model_filter"))
+            self.filter_labels['piso'].config(text=self.t("floor_filter"))
+
+        self.tree.heading('Archivo', text=self.t("tree_file"))
+        self.tree.heading('Modelo', text=self.t("tree_model"))
+        self.tree.heading('Piso', text=self.t("tree_floor"))
+        self.tree.heading('Cantidad', text=self.t("tree_count"))
+
+        self.update_combobox(self.combo_archivo, {entry[0] for entry in self.ap_data}, self.combo_archivo.get())
+        self.update_combobox(self.combo_modelo, {entry[1] for entry in self.ap_data}, self.combo_modelo.get())
+        self.update_combobox(self.combo_piso, {entry[2] for entry in self.ap_data}, self.combo_piso.get())
+
+        if self.selected_files:
+            self.selected_files_label.config(text=self.t("selected_files", files=', '.join(os.path.basename(f) for f in self.selected_files)))
 
     def show_tutorial_dialog(self):
         tutorial_win = tk.Toplevel(self.root)
@@ -297,13 +428,13 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         ttk.Label(header_frame, text="Wireless Survey Extractor", style='Header.TLabel').pack(side=tk.LEFT)
 
         # Warning Message
-        warning_label = ttk.Label(
+        self.warning_label = ttk.Label(
             main_frame,
-            text="¡ATENCIÓN! Asegúrese de que el archivo .esx contenga ÚNICAMENTE diseños de APs Simulados (Levantamiento Predictivo). Los APs detectados en Site Surveys activos generarán fallos técnicos y visuales.",
+            text=self.t("header_warning"),
             style="Warning.TLabel",
             wraplength=1000
         )
-        warning_label.pack(fill=tk.X, pady=(0, 10))
+        self.warning_label.pack(fill=tk.X, pady=(0, 10))
 
         # Panel principal
         content_frame = ttk.Frame(main_frame)
@@ -313,17 +444,20 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         filter_frame = ttk.Frame(content_frame)
         filter_frame.pack(fill=tk.X, pady=10)
         
+        self.filter_labels = {}
         filters = [
-            ('Archivo:', 'archivo', 0),
-            ('Modelo AP:', 'modelo', 2),
-            ('Piso:', 'piso', 4)
+            ("file_filter", 'archivo', 0),
+            ("model_filter", 'modelo', 2),
+            ("floor_filter", 'piso', 4)
         ]
         
-        for label_text, combo_name, col in filters:
-            ttk.Label(filter_frame, text=label_text).grid(row=0, column=col, padx=5, sticky=tk.W)
+        for label_key, combo_name, col in filters:
+            lbl = ttk.Label(filter_frame, text=self.t(label_key))
+            lbl.grid(row=0, column=col, padx=5, sticky=tk.W)
+            self.filter_labels[combo_name] = lbl
             combo = ttk.Combobox(filter_frame, state="readonly", width=22)
             combo.grid(row=0, column=col+1, padx=5, sticky=tk.EW)
-            combo.set('Todos')
+            combo.set(self.all_option())
             setattr(self, f'combo_{combo_name}', combo)
 
         # Tabla de resultados
@@ -530,7 +664,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
             self.note_counts = {}
             self.selected_files = file_paths
             self.selected_files_label.config(
-                text=f"Archivos seleccionados: {', '.join(os.path.basename(f) for f in file_paths)}"
+                text=self.t("selected_files", files=', '.join(os.path.basename(f) for f in file_paths))
             )
             
             for file_path in file_paths:
@@ -539,9 +673,9 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
                 except Exception as e:
                     messagebox.showerror("Error", f"Error procesando {os.path.basename(file_path)}:\n{str(e)}")
             
-            self.combo_archivo.set('Todos')
-            self.combo_modelo.set('Todos')
-            self.combo_piso.set('Todos')
+            self.combo_archivo.set(self.all_option())
+            self.combo_modelo.set(self.all_option())
+            self.combo_piso.set(self.all_option())
             
             self.ap_data.sort(key=lambda x: self.floor_and_block_sort_key((x[0], x[2])))
             self.apply_filters(force_update=True)
@@ -869,9 +1003,9 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         
         filtered = [
             entry for entry in self.ap_data
-            if (current_archivo in ['Todos', entry[0]]) and
-               (current_modelo in ['Todos', entry[1]]) and
-               (current_piso in ['Todos', entry[2]])
+            if ((self.is_all_option(current_archivo) or current_archivo == entry[0])) and
+               ((self.is_all_option(current_modelo) or current_modelo == entry[1])) and
+               ((self.is_all_option(current_piso) or current_piso == entry[2]))
         ]
         self.update_table(filtered)
         self.update_combos(current_archivo, current_modelo, current_piso, force=force_update)
@@ -892,8 +1026,8 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
 
     def update_combobox(self, combo, options, current):
         options = sorted(options, key=lambda x: (self.floor_sort_key(x) if combo == self.combo_piso else x))
-        combo['values'] = ['Todos'] + list(options)
-        combo.set(current if current in options else 'Todos')
+        combo['values'] = [self.all_option()] + list(options)
+        combo.set(current if current in options or self.is_all_option(current) else self.all_option())
 
     def update_table(self, data):
         self.tree.delete(*self.tree.get_children())
@@ -977,7 +1111,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
                 
                 self.selected_files = project_data["selected_files"]
                 self.selected_files_label.config(
-                    text=f"Archivos seleccionados: {', '.join(os.path.basename(f) for f in self.selected_files)}"
+                    text=self.t("selected_files", files=', '.join(os.path.basename(f) for f in self.selected_files))
                 )
                 
                 self.ap_data = []
@@ -1012,9 +1146,9 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
                 self.note_outline_width = config.get("note_outline_width", 1)
                 
                 filters = project_data.get("filters", {})
-                self.combo_archivo.set(filters.get("archivo", "Todos"))
-                self.combo_modelo.set(filters.get("modelo", "Todos"))
-                self.combo_piso.set(filters.get("piso", "Todos"))
+                self.combo_archivo.set(filters.get("archivo", self.all_option()))
+                self.combo_modelo.set(filters.get("modelo", self.all_option()))
+                self.combo_piso.set(filters.get("piso", self.all_option()))
                 
                 self.ap_data.sort(key=lambda x: self.floor_and_block_sort_key((x[0], x[2])))
                 self.apply_filters(force_update=True)
@@ -1653,4 +1787,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = WirelessSurveyExtractor(root)
     root.mainloop()
-
