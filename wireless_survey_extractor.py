@@ -128,7 +128,7 @@ class WirelessSurveyExtractor:
                 "merge_pdf": "Merge Existing PDFs...",
                 "settings": "Settings...",
                 "import_report_image": "Import Report Image...",
-                "tutorial": "Tutorial...",
+                "tutorial": "User Guide...",
                 "about": "About...",
                 "header_warning": "WARNING! Make sure the .esx file contains ONLY simulated AP designs (Predictive Survey). APs detected in active Site Surveys will generate technical and visual errors.",
                 "file_filter": "File:",
@@ -156,6 +156,12 @@ class WirelessSurveyExtractor:
         text = self.translations.get(lang, {}).get(key, key)
         return text.format(**kwargs) if kwargs else text
 
+    def is_english(self):
+        return self.current_language.get() == "en"
+
+    def tr(self, es, en):
+        return en if self.is_english() else es
+
     def all_option(self):
         return self.t("all")
 
@@ -163,7 +169,7 @@ class WirelessSurveyExtractor:
         return value in [self.translations["es"]["all"], self.translations["en"]["all"]]
 
     def create_menu(self):
-        self.menubar = tk.Menu(self.root)
+        self.menubar = tk.Menu(self.root, tearoff=0)
         self.root.config(menu=self.menubar)
 
         # File Menu
@@ -249,7 +255,7 @@ class WirelessSurveyExtractor:
 
     def show_tutorial_dialog(self):
         tutorial_win = tk.Toplevel(self.root)
-        tutorial_win.title("Tutorial de Wireless Survey Extractor")
+        tutorial_win.title(self.tr("Tutorial de Wireless Survey Extractor", "Wireless Survey Extractor Tutorial"))
         tutorial_win.geometry("800x650")
         tutorial_win.transient(self.root)
         tutorial_win.grab_set()
@@ -269,49 +275,80 @@ class WirelessSurveyExtractor:
 
         # Define tag for bold text
         bold_font = ("Segoe UI", 10, "bold")
-        text_widget.tag_configure("bold", font=bold_font)
-
-        tutorial_text = """
+        text_widget.tag_configure("bold", font=bold_font)        tutorial_text = self.tr(
+            """
 **Bienvenido al Tutorial de Wireless Survey Extractor**
 
-Esta guía te mostrará cómo utilizar todas las funcionalidades de la aplicación.
+Esta guia te mostrara como utilizar todas las funcionalidades de la aplicacion.
 
-**1. Cargar Archivos (Sólo Diseños Predictivos)**
+**1. Cargar Archivos (Solo Disenos Predictivos)**
 
--   **Seleccionar Archivos ESX... (Ctrl+O):** Ve a `Archivo > Seleccionar Archivos ESX...`. 
--   **AVISO:** La aplicación procesará SÓLO los APs Simulados (diseño predictivo). Los APs detectados en encuestas de sitio activas (Site Surveys) pueden corromper el diseño visual o generar lecturas erráticas, por lo que tus archivos base `.esx` deben estar limpios.
--   **Cargar Proyecto...:** Utiliza `Archivo > Cargar Proyecto...` para abrir un archivo de proyecto de Wireless Survey Extractor (`.aproj`) que hayas guardado previamente. Esto restaurará los archivos `.esx` seleccionados, la configuración de visualización y los filtros.
+-   **Seleccionar Archivos ESX... (Ctrl+O):** Ve a `Archivo > Seleccionar Archivos ESX...`.
+-   **AVISO:** La aplicacion procesara SOLO los APs simulados (diseno predictivo). Los APs detectados en Site Surveys activos pueden generar errores visuales o lecturas erraticas.
+-   **Cargar Proyecto...:** Usa `Archivo > Cargar Proyecto...` para abrir un archivo `.aproj` guardado previamente.
 
 **2. Guardar un Proyecto**
 
--   **Guardar Proyecto... (Ctrl+S):** Ve a `Archivo > Guardar Proyecto...` para guardar tu sesión actual. Esto te permitirá retomar tu trabajo más tarde sin tener que volver a cargar los archivos y configurar todo de nuevo.
+-   **Guardar Proyecto... (Ctrl+S):** Ve a `Archivo > Guardar Proyecto...` para guardar tu sesion actual.
 
 **3. Filtrar Datos**
 
--   Una vez cargados los datos, puedes usar los menús desplegables en la parte superior de la tabla para filtrar los resultados por `Archivo`, `Modelo de AP` o `Piso`.
+-   Puedes filtrar por `Archivo`, `Modelo de AP` o `Piso` usando los desplegables.
 
 **4. Exportar Resultados**
 
-El menú `Exportar` contiene todas las opciones para generar informes:
+El menu `Exportar` contiene las opciones para generar entregables:
 
--   **Exportar Datos a CSV...:** Crea un archivo `.csv` con la tabla completa de datos de APs, ideal para análisis en hojas de cálculo.
--   **Exportar Imágenes con APs...:** Genera imágenes de los planos de cada piso, mostrando la ubicación de los APs con círculos y etiquetas. Podrás personalizar la apariencia de estos elementos en la configuración.
--   **Generar Informe Word...:** Crea un documento de Word (`.docx`) completo que incluye:
-    -   Una portada con el logo, nombre del cliente e ingeniero.
-    -   Imágenes de cada plano con los APs y notas.
-    -   Tablas de resumen por piso.
-    -   Un resumen general del proyecto.
-    -   Gráficos con estadísticas de los APs y notas.
+-   **Exportar Datos a CSV...**
+-   **Exportar Imagenes con APs...**
+-   **Generar Informe Word...**
 
-**5. Configuración y Personalización**
+**5. Configuracion y Personalizacion**
 
--   **Configuración...:** Ve a `Herramientas > Configuración...` para abrir la ventana de ajustes. Aquí puedes cambiar los colores, tamaños de fuente y radios de los círculos que se usan al generar las imágenes de los planos.
--   **Importar Imagen para Informe...:** En `Herramientas > Importar Imagen para Informe...`, puedes seleccionar una imagen personalizada (por ejemplo, el logo de un cliente) que se usará en la portada de los informes de Word.
+-   **Configuracion...:** Ajusta colores, tamano de fuente y radio de circulos.
+-   **Importar Imagen para Informe...:** Selecciona una imagen para portada.
 
 **6. Ayuda**
 
--   **Acerca de...:** Muestra información sobre la aplicación.
+-   **Acerca de...:** Muestra informacion de la aplicacion.
+""",
+            """
+**Welcome to the Wireless Survey Extractor Tutorial**
+
+This guide shows how to use the main features of the app.
+
+**1. Load Files (Predictive Designs Only)**
+
+-   **Select ESX Files... (Ctrl+O):** Go to `File > Select ESX Files...`.
+-   **NOTICE:** The app should process ONLY simulated AP designs (predictive survey). APs detected in active Site Surveys can cause visual errors or unstable readings.
+-   **Load Project...:** Use `File > Load Project...` to open a previously saved `.aproj` project.
+
+**2. Save a Project**
+
+-   **Save Project... (Ctrl+S):** Go to `File > Save Project...` to save your current session.
+
+**3. Filter Data**
+
+-   You can filter by `File`, `AP Model`, or `Floor` with the dropdowns.
+
+**4. Export Results**
+
+The `Export` menu contains output options:
+
+-   **Export Data to CSV...**
+-   **Export Images with APs...**
+-   **Generate Word Report...**
+
+**5. Settings and Customization**
+
+-   **Settings...:** Adjust colors, font size, and circle radius.
+-   **Import Report Image...:** Select an image for the report cover.
+
+**6. Help**
+
+-   **About...:** Shows application information.
 """
+        )
         # Process and insert text with bold tags
         for line in tutorial_text.strip().split('\n'):
             parts = re.split(r'(\*\*.*?\*\*)', line)
@@ -326,39 +363,63 @@ El menú `Exportar` contiene todas las opciones para generar informes:
 
         btn_frame = ttk.Frame(main_frame)
         btn_frame.pack(pady=(10, 0))
-        ttk.Button(btn_frame, text="Cerrar", command=tutorial_win.destroy).pack()
+        ttk.Button(btn_frame, text=self.tr("Cerrar", "Close"), command=tutorial_win.destroy).pack()
 
     def import_report_image(self):
         path = filedialog.askopenfilename(
-            title="Seleccionar imagen para el informe",
-            filetypes=(("PNG files", "*.png"), ("JPEG files", "*.jpg;*.jpeg"), ("Todos los archivos", "*.*"))
+            title=self.tr("Seleccionar imagen para el informe", "Select report image"),
+            filetypes=(("PNG files", "*.png"), ("JPEG files", "*.jpg;*.jpeg"), (self.tr("Todos los archivos", "All files"), "*.*"))
         )
         if path:
             self.report_image_path = path
-            messagebox.showinfo("Éxito", f"Imagen '{os.path.basename(path)}' seleccionada para los informes.")
-
-    def show_about_dialog(self):
-        license_text = """
-Wireless Survey Extractor - Versión 1.0
+            messagebox.showinfo(self.tr("Exito", "Success"), self.tr(f"Imagen '{os.path.basename(path)}' seleccionada para los informes.", f"Image '{os.path.basename(path)}' selected for reports."))
+    def show_about_dialog(self):
+        license_text = self.tr(
+            """
+Wireless Survey Extractor - Version 1.0
 Creado por: Christian Mendivelso
 
 ----------------------------------
-Licencia Apache 2.0 (Código Abierto)
+Licencia Apache 2.0 (Codigo Abierto)
 ----------------------------------
 
 Copyright (c) 2025 Christian Mendivelso
 
-Este software es de código abierto. Tienes total libertad para:
-- Usarlo con cualquier propósito (incluyendo comercial).
+Este software es de codigo abierto. Tienes total libertad para:
+- Usarlo con cualquier proposito (incluyendo comercial).
 - Modificarlo y adaptarlo a tus necesidades.
 - Distribuirlo.
 
-BAJO LA SIGUIENTE CONDICIÓN OBLIGATORIA:
-Debes dar el crédito correspondiente al autor original (Christian Mendivelso) e incluir una copia o enlace a la licencia original en cualquier distribución, modificación o trabajo derivado.
+BAJO LA SIGUIENTE CONDICION OBLIGATORIA:
+Debes dar el credito correspondiente al autor original (Christian Mendivelso) e incluir una copia o enlace a la licencia original en cualquier distribucion, modificacion o trabajo derivado.
 
-EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTIAS DE NINGUN TIPO.
+""",
+            """
+Wireless Survey Extractor - Version 1.0
+Created by: Christian Mendivelso
+
+----------------------------------
+Apache 2.0 License (Open Source)
+----------------------------------
+
+Copyright (c) 2025 Christian Mendivelso
+
+This software is open source. You are free to:
+- Use it for any purpose (including commercial use).
+- Modify and adapt it to your needs.
+- Distribute it.
+
+UNDER THE FOLLOWING MANDATORY CONDITION:
+You must provide proper credit to the original author (Christian Mendivelso) and include a copy of or link to the original license in any distribution, modification, or derivative work.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTIES OF ANY KIND.
 """
-        messagebox.showinfo("Acerca de Wireless Survey Extractor", license_text)
+        )
+        messagebox.showinfo(
+            self.tr("Acerca de Wireless Survey Extractor", "About Wireless Survey Extractor"),
+            license_text
+        )
 
     def setup_styles(self):
         self.style.theme_use('clam')
@@ -502,7 +563,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
 
     def show_settings_dialog(self):
         settings_win = tk.Toplevel(self.root)
-        settings_win.title("Configuración de Visualización")
+        settings_win.title(self.tr("Configuracion de Visualizacion", "Display Settings"))
         settings_win.geometry("800x600")
         self.center_window()
         
@@ -512,13 +573,12 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         # Panel de controles
         control_frame = ttk.Frame(main_frame)
         control_frame.pack(side=tk.LEFT, fill=tk.Y, padx=10)
-        
-        settings = [
-            ('Radio del círculo:', 'circle_radius', self.circle_radius),
-            ('Tamaño de fuente:', 'font_size', self.font_size),
-            ('Grosor delineado:', 'outline_width', self.outline_width),
-            ('Tamaño de fuente de nota:', 'note_font_size', self.note_font_size),
-            ('Grosor delineado de nota:', 'note_outline_width', self.note_outline_width)
+                settings = [
+            (self.tr("Radio del circulo:", "Circle radius:"), 'circle_radius', self.circle_radius),
+            (self.tr("Tamano de fuente:", "Font size:"), 'font_size', self.font_size),
+            (self.tr("Grosor delineado:", "Outline width:"), 'outline_width', self.outline_width),
+            (self.tr("Tamano de fuente de nota:", "Note font size:"), 'note_font_size', self.note_font_size),
+            (self.tr("Grosor delineado de nota:", "Note outline width:"), 'note_outline_width', self.note_outline_width)
         ]
         
         self.entries = {}
@@ -528,13 +588,12 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
             entry.insert(0, str(value))
             entry.grid(row=i, column=1, pady=5, sticky=tk.EW)
             self.entries[name] = entry
-        
-        color_buttons = [
-            ('Color del círculo', 'circle_color', self.circle_color),
-            ('Color del texto', 'text_color', self.text_color),
-            ('Color delineado', 'outline_color', self.outline_color),
-            ('Color de la nota', 'note_color', self.note_color),
-            ('Color delineado de nota', 'note_outline_color', self.note_outline_color)
+                color_buttons = [
+            (self.tr("Color del circulo", "Circle color"), 'circle_color', self.circle_color),
+            (self.tr("Color del texto", "Text color"), 'text_color', self.text_color),
+            (self.tr("Color delineado", "Outline color"), 'outline_color', self.outline_color),
+            (self.tr("Color de la nota", "Note color"), 'note_color', self.note_color),
+            (self.tr("Color delineado de nota", "Note outline color"), 'note_outline_color', self.note_outline_color)
         ]
         
         for i, (text, color_type, color) in enumerate(color_buttons, len(settings)):
@@ -546,15 +605,15 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         preview_frame = ttk.Frame(main_frame)
         preview_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         
-        ttk.Label(preview_frame, text="Vista Previa").pack(pady=5)
+        ttk.Label(preview_frame, text=self.tr("Vista Previa", "Preview")).pack(pady=5)
         self.preview_canvas = tk.Canvas(preview_frame, bg='white', bd=2, relief=tk.GROOVE)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
         
         # Botones de acción
         btn_frame = ttk.Frame(control_frame)
         btn_frame.grid(row=6, columnspan=2, pady=20)
-        ttk.Button(btn_frame, text="Aplicar", command=self.save_settings).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="Cerrar", command=settings_win.destroy).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text=self.tr("Aplicar", "Apply"), command=self.save_settings).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text=self.tr("Cerrar", "Close"), command=settings_win.destroy).pack(side=tk.LEFT, padx=5)
         
         self.generate_preview()
 
@@ -620,7 +679,8 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
                             fill=self.note_outline_color,
                             font=note_font
                         )
-        draw.text((50, 250), "Ejemplo de nota", fill=self.note_color, font=note_font)
+        note_example = self.tr("Ejemplo de nota", "Sample note")
+        draw.text((50, 250), note_example, fill=self.note_color, font=note_font)
 
         self.tk_preview = ImageTk.PhotoImage(preview_img)
         self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_preview)
@@ -653,7 +713,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
 
     def load_esx(self):
         file_paths = filedialog.askopenfilenames(
-            title="Seleccionar archivo(s) .esx",
+            title=self.tr('Seleccionar archivo(s) .esx', 'Select .esx file(s)'),
             filetypes=(("Extractor files", ".esx"), ("Todos los archivos", ".*"))
         )
         
@@ -1036,7 +1096,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
 
     def export_csv(self):
         if not self.ap_data:
-            messagebox.showwarning("Advertencia", "No hay datos para exportar")
+            messagebox.showwarning(self.tr('Advertencia', 'Warning'), self.tr('No hay datos para exportar', 'No data to export'))
             return
         
         save_path = filedialog.asksaveasfilename(
@@ -1160,13 +1220,13 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
 
     def generate_word_report(self):
         if not self.aps_for_plotting:
-            messagebox.showwarning("Advertencia", "No hay APs para generar informe")
+            messagebox.showwarning(self.tr('Advertencia', 'Warning'), self.tr('No hay APs para generar informe', 'No APs available to generate report'))
             return
         
         unique_floors = sorted(list({(ap['filename'], ap['floor']) for ap in self.aps_for_plotting}), key=self.floor_and_block_sort_key)
         
         order_dialog = tk.Toplevel(self.root)
-        order_dialog.title("Ordenar Pisos y Opciones de Informe")
+        order_dialog.title(self.tr('Ordenar Pisos y Opciones de Informe', 'Sort Floors and Report Options'))
         order_dialog.geometry("800x600")
 
         main_frame = ttk.Frame(order_dialog, padding=10)
@@ -1187,7 +1247,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         listbox.configure(yscrollcommand=scrollbar.set)
         
         for filename, floor in unique_floors:
-            listbox.insert(tk.END, f"{filename} - Piso {floor}")
+            listbox.insert(tk.END, f"{filename} - {self.tr('Piso', 'Floor')} {floor}")
         
         listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -1234,7 +1294,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
         ttk.Checkbutton(options_frame, text="Incluir Totales de Notas", variable=self.include_note_totals_var).grid(row=3, columnspan=2, sticky=tk.W)
 
         # Right side: Preview
-        preview_frame = ttk.LabelFrame(right_frame, text="Vista Previa del Plano", padding=10)
+        preview_frame = ttk.LabelFrame(right_frame, text=self.tr('Vista Previa del Plano', 'Floor Preview'), padding=10)
         preview_frame.pack(fill=tk.BOTH, expand=True)
 
         preview_canvas = tk.Canvas(preview_frame, bg='white')
@@ -1373,7 +1433,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
             order_dialog.destroy()
             self.create_word_document()
         
-        ttk.Button(left_frame, text="Generar Informe", command=confirm_order).pack(pady=10)
+        ttk.Button(left_frame, text=self.tr('Generar Informe', 'Generate Report'), command=confirm_order).pack(pady=10)
 
     def create_word_document(self):
         save_path = filedialog.asksaveasfilename(
@@ -1645,8 +1705,17 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
             return None
 
     def parse_floor_entry(self, entry):
-        parts = entry.split(" - Piso ")
-        return parts[0].strip(), parts[1].strip()
+        parts = entry.rsplit(" - ", 1)
+        if len(parts) != 2:
+            return entry.strip(), ""
+
+        floor_part = parts[1].strip()
+        for token in ("Piso ", "Floor "):
+            if floor_part.startswith(token):
+                floor_part = floor_part[len(token):]
+                break
+
+        return parts[0].strip(), floor_part.strip()
 
     def floor_and_block_sort_key(self, floor_entry):
         filename, floor_str = floor_entry
@@ -1753,7 +1822,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
 
     def merge_existing_pdfs(self):
         file_paths = filedialog.askopenfilenames(
-            title="Seleccionar archivos PDF para unir",
+            title=self.tr('Seleccionar archivos PDF para unir', 'Select PDF files to merge'),
             filetypes=(("PDF files", "*.pdf"), ("Todos los archivos", "*.*"))
         )
 
@@ -1761,7 +1830,7 @@ EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍAS DE NINGÚN TIPO.
             return
 
         save_path = filedialog.asksaveasfilename(
-            title="Guardar PDF combinado como...",
+            title=self.tr('Guardar PDF combinado como...','Save merged PDF as...'),
             defaultextension=".pdf",
             filetypes=(("PDF files", "*.pdf"), ("Todos los archivos", "*.*"))
         )
@@ -1787,3 +1856,10 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = WirelessSurveyExtractor(root)
     root.mainloop()
+
+
+
+
+
+
+
