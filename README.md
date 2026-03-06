@@ -87,6 +87,8 @@ Para usuarios que no son programadores y no desean lidiar con entornos virtuales
 1. Descarga `wireless_survey_extractor.exe` desde este repositorio.
 2. Haz doble clic sobre él (no requiere la terminal de comandos de CMD, iniciará la interfaz visual de una vez).
 3. (Windows Defender podría mostrar una alerta de seguridad ("Pantalla Azul/SmartScreen") dado que es un ejecutable open-source sin firma digital comercial. Selecciona *"Más Información"* y luego *"Ejecutar de todas formas"*).
+4. Recomendado: descarga siempre la versión más reciente desde **GitHub Releases**:
+   https://github.com/crmendi/Wireless-Survey-Extractor/releases/latest
 
 ---
 
